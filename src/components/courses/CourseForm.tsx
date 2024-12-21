@@ -1,5 +1,6 @@
 import { useForm } from '@mantine/form';
 import { TextInput, NumberInput, Textarea, Button, Group, Box, Select, Stack, ActionIcon } from '@mantine/core';
+import { TimeInput } from '@mantine/dates';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { Course } from '../../types/course';
 
@@ -19,8 +20,8 @@ export function CourseForm({ initialValues, onSubmit, isLoading }: CourseFormPro
       instructor: '',
       semester: '',
       capacity: 30,
-      status: 'active',
-      schedule: [{ day: '', startTime: '', endTime: '' }]
+      status: 'active' as const,
+      schedule: [{ day: '', start_time: '', end_time: '' }]
     },
     validate: {
       code: (value) => (!value ? 'Course code is required' : null),
@@ -29,19 +30,22 @@ export function CourseForm({ initialValues, onSubmit, isLoading }: CourseFormPro
       capacity: (value) => (value < 1 ? 'Capacity must be at least 1' : null),
       schedule: {
         day: (value) => (!value ? 'Day is required' : null),
-        startTime: (value) => (!value ? 'Start time is required' : null),
-        endTime: (value) => (!value ? 'End time is required' : null),
+        start_time: (value) => (!value ? 'Start time is required' : null),
+        end_time: (value) => (!value ? 'End time is required' : null),
       },
     },
   });
 
   const handleSubmit = form.onSubmit((values) => {
-    onSubmit(values);
+    onSubmit({
+      ...values,
+      status: values.status as 'active' | 'inactive' | 'completed'
+    });
   });
 
   return (
     <Box component="form" onSubmit={handleSubmit}>
-      <Stack spacing="md">
+      <Stack gap="md">
         <Group grow>
           <TextInput
             label="Course Code"
@@ -106,7 +110,7 @@ export function CourseForm({ initialValues, onSubmit, isLoading }: CourseFormPro
           required
         />
 
-        <Stack spacing="xs">
+        <Stack gap="xs">
           <Group justify="space-between">
             <Box component="label" fw={500} fz="sm">Schedule</Box>
             <Button
@@ -114,7 +118,7 @@ export function CourseForm({ initialValues, onSubmit, isLoading }: CourseFormPro
               leftSection={<IconPlus size={16} />}
               variant="light"
               onClick={() => {
-                form.insertListItem('schedule', { day: '', startTime: '', endTime: '' });
+                form.insertListItem('schedule', { day: '', start_time: '', end_time: '' });
               }}
             >
               Add Time Slot
@@ -136,15 +140,19 @@ export function CourseForm({ initialValues, onSubmit, isLoading }: CourseFormPro
                   'Sunday',
                 ]}
               />
-              <TextInput
+              <TimeInput
                 type="time"
                 placeholder="Start Time"
-                {...form.getInputProps(`schedule.${index}.startTime`)}
+                {...form.getInputProps(`schedule.${index}.start_time`)}
+                withSeconds
+                required
               />
-              <TextInput
+              <TimeInput
                 type="time"
                 placeholder="End Time"
-                {...form.getInputProps(`schedule.${index}.endTime`)}
+                {...form.getInputProps(`schedule.${index}.end_time`)}
+                withSeconds
+                required
               />
               <ActionIcon
                 color="red"

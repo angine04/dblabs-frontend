@@ -54,16 +54,16 @@ export function Sidebar() {
 
   return (
     <AppShell.Navbar p="md">
-        <Stack gap="md">
-          {navigation.map((item) => (
-            <NavItem
-              key={item.path}
-              {...item}
-              active={location.pathname === item.path || location.pathname.startsWith(`${item.path}/`)}
-              onClick={() => navigate(item.path)}
-            />
-          ))}
-        </Stack>
+      <Stack gap="md">
+        {navigation.map((item) => (
+          <NavItem
+            key={item.path}
+            {...item}
+            active={location.pathname === item.path || location.pathname.startsWith(`${item.path}/`)}
+            onClick={() => navigate(item.path)}
+          />
+        ))}
+      </Stack>
     </AppShell.Navbar>
   );
 } 

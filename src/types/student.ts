@@ -1,20 +1,14 @@
 export interface Student {
-  id?: string;
-  firstName: string;
-  lastName: string;
+  id: number;
+  student_id: string;
+  first_name: string;
+  last_name: string;
   email: string;
-  dateOfBirth: Date | null;
-  studentId: string;
-  enrollmentDate: Date | null;
-  grade: string;
+  date_of_birth?: string;
+  enrollment_date?: string;
   program: string;
   status: string;
-  contactNumber: string;
-  address: {
-    street: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    country: string;
-  };
-} 
+  contact_number?: string;
+  created_at?: string;
+  updated_at?: string;
+}

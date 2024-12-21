@@ -1,52 +1,230 @@
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container, Title, Button, Group, Space } from '@mantine/core';
-import { IconArrowLeft } from '@tabler/icons-react';
+import { Container, Title, Button, Group, TextInput, Select, Textarea, NumberInput, Table, ActionIcon } from '@mantine/core';
+import { TimeInput } from '@mantine/dates';
+import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { useCourses } from '../../hooks/useCourses';
-import { CourseForm } from '../../components/courses/CourseForm';
+import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { Course } from '../../types/course';
+
+type CourseFormValues = Omit<Course, 'id' | 'enrolled_count' | 'created_at' | 'updated_at'>;
 
 export function AddCourse() {
   const navigate = useNavigate();
   const { createCourse } = useCourses();
+  const [schedule, setSchedule] = useState<Course['schedule']>([]);
 
-  const handleSubmit = async (values: Omit<Course, 'id'>) => {
+  const form = useForm<CourseFormValues>({
+    initialValues: {
+      code: '',
+      name: '',
+      description: '',
+      credits: 3,
+      instructor: '',
+      semester: '',
+      capacity: 30,
+      status: 'active',
+      schedule: [],
+    },
+    validate: {
+      code: (value) => (!value ? 'Course code is required' : null),
+      name: (value) => (!value ? 'Course name is required' : null),
+      credits: (value) => (value <= 0 ? 'Credits must be greater than 0' : null),
+      instructor: (value) => (!value ? 'Instructor name is required' : null),
+      semester: (value) => (!value ? 'Semester is required' : null),
+      capacity: (value) => (value <= 0 ? 'Capacity must be greater than 0' : null),
+      status: (value) => (!value ? 'Status is required' : null),
+    },
+  });
+
+  const handleSubmit = async (values: Omit<CourseFormValues, 'schedule'>) => {
     try {
-      await createCourse.mutateAsync(values);
+      await createCourse.mutateAsync({
+        ...values,
+        schedule,
+      });
       notifications.show({
         title: 'Success',
-        message: 'Course created successfully',
+        message: 'Course added successfully',
         color: 'green',
       });
       navigate('/courses');
     } catch (error) {
       notifications.show({
         title: 'Error',
-        message: 'Failed to create course',
+        message: 'Failed to add course',
         color: 'red',
       });
     }
   };
 
+  const addScheduleItem = () => {
+    setSchedule([...schedule, { day: '', start_time: '', end_time: '' }]);
+  };
+
+  const removeScheduleItem = (index: number) => {
+    setSchedule(schedule.filter((_, i) => i !== index));
+  };
+
+  const updateScheduleItem = (index: number, field: keyof Course['schedule'][0], value: string) => {
+    const newSchedule = [...schedule];
+    newSchedule[index] = { ...newSchedule[index], [field]: value };
+    setSchedule(newSchedule);
+  };
+
   return (
-    <Container size="xl">
-      <Group justify="space-between" mb="md">
-        <Title order={2}>Add New Course</Title>
+    <Container size="md">
+      <Title order={2} mb="xl">Add New Course</Title>
+
+      <form onSubmit={form.onSubmit(handleSubmit)}>
+        <Group grow mb="md">
+          <TextInput
+            label="Course Code"
+            placeholder="e.g., CS101"
+            required
+            {...form.getInputProps('code')}
+          />
+          <TextInput
+            label="Course Name"
+            placeholder="Enter course name"
+            required
+            {...form.getInputProps('name')}
+          />
+        </Group>
+
+        <Textarea
+          label="Description"
+          placeholder="Enter course description"
+          minRows={3}
+          {...form.getInputProps('description')}
+          mb="md"
+        />
+
+        <Group grow mb="md">
+          <NumberInput
+            label="Credits"
+            placeholder="Enter credits"
+            required
+            min={0}
+            {...form.getInputProps('credits')}
+          />
+          <TextInput
+            label="Instructor"
+            placeholder="Enter instructor name"
+            required
+            {...form.getInputProps('instructor')}
+          />
+        </Group>
+
+        <Group grow mb="md">
+          <Select
+            label="Semester"
+            placeholder="Select semester"
+            required
+            data={[
+              { value: 'Fall 2023', label: 'Fall 2023' },
+              { value: 'Spring 2024', label: 'Spring 2024' },
+              { value: 'Summer 2024', label: 'Summer 2024' },
+              { value: 'Fall 2024', label: 'Fall 2024' },
+            ]}
+            {...form.getInputProps('semester')}
+          />
+          <NumberInput
+            label="Capacity"
+            placeholder="Enter capacity"
+            required
+            min={1}
+            {...form.getInputProps('capacity')}
+          />
+        </Group>
+
+        <Select
+          label="Status"
+          placeholder="Select status"
+          required
+          data={[
+            { value: 'active', label: 'Active' },
+            { value: 'inactive', label: 'Inactive' },
+            { value: 'completed', label: 'Completed' },
+          ]}
+          {...form.getInputProps('status')}
+          mb="md"
+        />
+
+        <Title order={4} mb="md">Course Schedule</Title>
+        <Table mb="sm">
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>Day</Table.Th>
+              <Table.Th>Start Time</Table.Th>
+              <Table.Th>End Time</Table.Th>
+              <Table.Th>Actions</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
+            {schedule.map((item, index) => (
+              <Table.Tr key={index}>
+                <Table.Td>
+                  <Select
+                    value={item.day}
+                    onChange={(value) => updateScheduleItem(index, 'day', value || '')}
+                    data={[
+                      { value: 'Monday', label: 'Monday' },
+                      { value: 'Tuesday', label: 'Tuesday' },
+                      { value: 'Wednesday', label: 'Wednesday' },
+                      { value: 'Thursday', label: 'Thursday' },
+                      { value: 'Friday', label: 'Friday' },
+                    ]}
+                    required
+                  />
+                </Table.Td>
+                <Table.Td>
+                  <TimeInput
+                    value={item.start_time}
+                    onChange={(event) => updateScheduleItem(index, 'start_time', event.currentTarget.value)}
+                    required
+                  />
+                </Table.Td>
+                <Table.Td>
+                  <TimeInput
+                    value={item.end_time}
+                    onChange={(event) => updateScheduleItem(index, 'end_time', event.currentTarget.value)}
+                    required
+                  />
+                </Table.Td>
+                <Table.Td>
+                  <ActionIcon
+                    variant="light"
+                    color="red"
+                    onClick={() => removeScheduleItem(index)}
+                  >
+                    <IconTrash size={16} />
+                  </ActionIcon>
+                </Table.Td>
+              </Table.Tr>
+            ))}
+          </Table.Tbody>
+        </Table>
+
         <Button
           variant="light"
-          leftSection={<IconArrowLeft size={16} />}
-          onClick={() => navigate('/courses')}
+          onClick={addScheduleItem}
+          leftSection={<IconPlus size={16} />}
+          mb="xl"
         >
-          Back to Courses
+          Add Schedule
         </Button>
-      </Group>
 
-      <Space h="md" />
-      
-      <CourseForm 
-        onSubmit={handleSubmit}
-        isLoading={createCourse.isPending}
-      />
+        <Group justify="flex-end" mt="xl">
+          <Button variant="light" onClick={() => navigate('/courses')}>
+            Cancel
+          </Button>
+          <Button type="submit" loading={createCourse.isPending}>
+            Add Course
+          </Button>
+        </Group>
+      </form>
     </Container>
   );
 } 

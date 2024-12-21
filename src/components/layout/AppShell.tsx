@@ -12,7 +12,7 @@ export function AppShell() {
     <MantineAppShell
       header={{ height: 60 }}
       navbar={{
-        width: 300,
+        width: 180,
         breakpoint: 'sm',
         collapsed: { mobile: !opened },
       }}

@@ -1,8 +1,8 @@
 import React from 'react';
-import { Container, Grid, Card, Text, Group, Stack } from '@mantine/core';
+import { Container, Grid, Card, Text, Group, LoadingOverlay } from '@mantine/core';
 import { IconUsers, IconSchool, IconBooks, IconChartBar } from '@tabler/icons-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { useStudents } from '../../hooks/useStudents';
+import { useStats } from '../../hooks/useStats';
 
 const COLORS = ['#1c7ed6', '#37b24d', '#f03e3e', '#7950f2'];
 
@@ -23,24 +23,11 @@ const StatsCard = ({ title, value, icon: Icon, color }: any) => (
 );
 
 export function Dashboard() {
-  const { students } = useStudents();
+  const { data: stats, isLoading } = useStats();
 
-  const programData = students.data?.reduce((acc, student) => {
-    acc[student.program] = (acc[student.program] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-
-  const chartData = Object.entries(programData || {}).map(([name, value]) => ({
-    name,
-    value,
-  }));
-
-  const gradeData = [
-    { grade: 'A', count: 30 },
-    { grade: 'B', count: 45 },
-    { grade: 'C', count: 20 },
-    { grade: 'D', count: 5 },
-  ];
+  if (isLoading) {
+    return <LoadingOverlay visible />;
+  }
 
   return (
     <Container size="xl">
@@ -48,7 +35,7 @@ export function Dashboard() {
         <Grid.Col span={{ base: 12, md: 6, lg: 3 }}>
           <StatsCard
             title="Total Students"
-            value="1,234"
+            value={stats?.total_students}
             icon={IconUsers}
             color="blue"
           />
@@ -56,7 +43,7 @@ export function Dashboard() {
         <Grid.Col span={{ base: 12, md: 6, lg: 3 }}>
           <StatsCard
             title="Active Students"
-            value="1,089"
+            value={stats?.active_students}
             icon={IconBooks}
             color="green"
           />
@@ -64,7 +51,7 @@ export function Dashboard() {
         <Grid.Col span={{ base: 12, md: 6, lg: 3 }}>
           <StatsCard
             title="Graduated"
-            value="145"
+            value={stats?.graduated_students}
             icon={IconSchool}
             color="grape"
           />
@@ -72,7 +59,7 @@ export function Dashboard() {
         <Grid.Col span={{ base: 12, md: 6, lg: 3 }}>
           <StatsCard
             title="Average GPA"
-            value="3.5"
+            value={stats?.average_gpa}
             icon={IconChartBar}
             color="orange"
           />
@@ -84,7 +71,7 @@ export function Dashboard() {
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-                  data={chartData}
+                  data={stats?.program_distribution}
                   dataKey="value"
                   nameKey="name"
                   cx="50%"
@@ -92,7 +79,7 @@ export function Dashboard() {
                   outerRadius={100}
                   label={(entry: { name: string; value: number }) => entry.name}
                 >
-                  {chartData.map((entry, index) => (
+                  {stats?.program_distribution.map((entry, index) => (
                     <Cell key={entry.name} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
@@ -104,19 +91,28 @@ export function Dashboard() {
 
         <Grid.Col span={{ base: 12, md: 6 }}>
           <Card withBorder p="md" h={400}>
-            <Text fw={500} mb="md">Grade Distribution</Text>
+            <Text fw={500} mb="md">GPA Distribution</Text>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={gradeData}>
+              <BarChart data={stats?.gpa_distribution} margin={{ left: 10, right: 10 }}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="grade" />
-                <YAxis />
+                <XAxis 
+                  dataKey="range"
+                  label={{ value: 'GPA Range', position: 'bottom' }}
+                  angle={-45}
+                  textAnchor="end"
+                  height={60}
+                  interval={0}
+                  tick={{ fontSize: 12 }}
+                />
+                <YAxis 
+                  label={{ value: 'Number of Students', angle: -90, position: 'left' }}
+                />
                 <Tooltip />
                 <Bar dataKey="count" fill="#1c7ed6" />
               </BarChart>
             </ResponsiveContainer>
           </Card>
         </Grid.Col>
-
       </Grid>
     </Container>
   );

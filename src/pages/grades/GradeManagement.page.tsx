@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Container, Grid, Card, Text, Group, Button, Table, ActionIcon, Select, Badge, Menu } from '@mantine/core';
-import { IconDownload, IconFilter, IconEdit, IconPlus } from '@tabler/icons-react';
+import { Container, Grid, Card, Text, Group, Button, Table, ActionIcon, Select, Badge, Center, Stack, ThemeIcon } from '@mantine/core';
+import { IconDownload, IconFilter, IconEdit, IconPlus, IconSchool } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { gradeApi } from '../../services/api';
 import { useCourses } from '../../hooks/useCourses';
-import { Grade } from '../../types/course';
+import { Grade } from '../../types/grade';
 import { GradeEditModal } from '../../components/grades/GradeEditModal';
 
 interface GradeFormValues {
@@ -104,10 +104,14 @@ export function GradeManagement() {
   };
 
   const handleAddGrade = async (values: GradeFormValues & { student_id?: string }) => {
-    if (!selectedCourse || !values.student_id) return;
+    if (!selectedCourse || !values.student_id) {
+      return;
+    }
 
     const selectedCourseObj = courses.find(c => c.id.toString() === selectedCourse);
-    if (!selectedCourseObj) return;
+    if (!selectedCourseObj) {
+      return;
+    }
 
     await createGradeMutation.mutateAsync({
       course_id: parseInt(selectedCourse, 10),
@@ -121,11 +125,22 @@ export function GradeManagement() {
     setSelectedStudent(null);
   };
 
-  const getLetterGrade = (score: number): string => {
-    if (score >= 90) return 'A';
-    if (score >= 80) return 'B';
-    if (score >= 70) return 'C';
-    if (score >= 60) return 'D';
+  const getLetterGrade = (score: number | null): string => {
+    if (score === null) {
+      return '-';
+    }
+    if (score >= 90) {
+      return 'A';
+    }
+    if (score >= 80) {
+      return 'B';
+    }
+    if (score >= 70) {
+      return 'C';
+    }
+    if (score >= 60) {
+      return 'D';
+    }
     return 'F';
   };
 
@@ -136,6 +151,7 @@ export function GradeManagement() {
       case 'C': return 'yellow';
       case 'D': return 'orange';
       case 'F': return 'red';
+      case '-': return 'gray';
       default: return 'gray';
     }
   };
@@ -145,7 +161,7 @@ export function GradeManagement() {
     : grades;
 
   return (
-    <Container size="xl">
+    <Container size="lg">
       <Group justify="space-between" mb="md">
         <Text size="xl" fw={700}>Grade Management</Text>
         <Group>
@@ -211,9 +227,9 @@ export function GradeManagement() {
                 <Table.Tbody>
                   {filteredGrades.map((grade) => (
                     <Table.Tr key={grade.id}>
-                      <Table.Td>{grade.student?.studentId}</Table.Td>
+                      <Table.Td>{grade.student?.student_id}</Table.Td>
                       <Table.Td>
-                        {grade.student?.firstName} {grade.student?.lastName}
+                        {grade.student?.first_name} {grade.student?.last_name}
                       </Table.Td>
                       <Table.Td>{grade.score}</Table.Td>
                       <Table.Td>
@@ -238,8 +254,22 @@ export function GradeManagement() {
                   ))}
                   {(!filteredGrades || filteredGrades.length === 0) && (
                     <Table.Tr>
-                      <Table.Td colSpan={6} align="center">
-                        {selectedCourse ? 'No grades available' : 'Please select a course'}
+                      <Table.Td colSpan={6}>
+                        <Center py="xl">
+                          <Stack align="center" gap="md">
+                            <ThemeIcon size="xl" radius="xl" color="blue">
+                              <IconSchool size={28} />
+                            </ThemeIcon>
+                            <Text size="xl" fw={500}>
+                              {selectedCourse ? 'No grades available' : 'Please select a course to view grades'}
+                            </Text>
+                            {!selectedCourse && (
+                              <Text c="dimmed" size="sm">
+                                Use the dropdown above to choose a course and manage its grades
+                              </Text>
+                            )}
+                          </Stack>
+                        </Center>
                       </Table.Td>
                     </Table.Tr>
                   )}
@@ -257,7 +287,7 @@ export function GradeManagement() {
           setSelectedStudent(null);
         }}
         studentData={selectedStudent ? {
-          studentName: `${selectedStudent.student?.firstName} ${selectedStudent.student?.lastName}`,
+          studentName: `${selectedStudent.student?.first_name} ${selectedStudent.student?.last_name}`,
           grades: selectedStudent
         } : {
           studentName: 'New Grade',

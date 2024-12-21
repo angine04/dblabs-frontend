@@ -3,9 +3,7 @@ import { AppShell } from './components/layout/AppShell';
 import { ListStudents } from './pages/students/ListStudents.page';
 import { AddStudent } from './pages/students/AddStudent.page';
 import { EditStudent } from './pages/students/EditStudent.page';
-import { StudentProfile } from './pages/students/StudentProfile.page';
 import { Dashboard } from './pages/dashboard/Dashboard.page';
-import { Settings } from './pages/settings/Settings.page';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { ListCourses } from './pages/courses/ListCourses.page';
 import { AddCourse } from './pages/courses/AddCourse.page';
@@ -40,10 +38,6 @@ const router = createBrowserRouter([
           },
           {
             path: ':id',
-            element: <StudentProfile />,
-          },
-          {
-            path: ':id/edit',
             element: <EditStudent />,
           },
         ],
@@ -67,16 +61,16 @@ const router = createBrowserRouter([
             path: ':id/edit',
             element: <EditCourse />,
           },
+          {
+            path: ':id/students',
+            element: <CourseDetails />,
+          },
         ],
       },
       {
         path: 'grades',
         element: <GradeManagement />,
       },
-      // {
-      //   path: '*',
-      //   element: <Navigate to="/dashboard" replace />,
-      // },
     ],
   },
 ]);

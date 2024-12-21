@@ -1,6 +1,6 @@
 import { Modal, Stack, NumberInput, Textarea, Button, Select } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { Grade } from '../../types/course';
+import { Grade } from '../../types/grade';
 import { useQuery } from '@tanstack/react-query';
 import { studentApi } from '../../services/api';
 import { useEffect } from 'react';
@@ -51,7 +51,7 @@ export function GradeEditModal({ opened, onClose, studentData, onSubmit, isNew }
               required
               data={students.map(student => ({
                 value: student.id?.toString() || '',
-                label: `${student.firstName} ${student.lastName} (${student.studentId})`
+                label: `${student.first_name} ${student.last_name} (${student.student_id})`
               }))}
               {...form.getInputProps('student_id')}
             />

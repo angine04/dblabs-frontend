@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { gradeApi } from '../services/api';
-import { Grade } from '../types/course';
+import { Grade } from '../types/grade';
 
 export function useGrades() {
   const queryClient = useQueryClient();
