@@ -1,11 +1,22 @@
 import React, { useState } from 'react';
+import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import { Container, Title, Button, Group, TextInput, Select, Textarea, NumberInput, Table, ActionIcon } from '@mantine/core';
+import {
+  ActionIcon,
+  Button,
+  Container,
+  Group,
+  NumberInput,
+  Select,
+  Table,
+  Textarea,
+  TextInput,
+  Title,
+} from '@mantine/core';
 import { TimeInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { useCourses } from '../../hooks/useCourses';
-import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { Course } from '../../types/course';
 
 type CourseFormValues = Omit<Course, 'id' | 'enrolled_count' | 'created_at' | 'updated_at'>;
@@ -75,7 +86,9 @@ export function AddCourse() {
 
   return (
     <Container size="md">
-      <Title order={2} mb="xl">Add New Course</Title>
+      <Title order={2} mb="xl">
+        Add New Course
+      </Title>
 
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Group grow mb="md">
@@ -152,7 +165,9 @@ export function AddCourse() {
           mb="md"
         />
 
-        <Title order={4} mb="md">Course Schedule</Title>
+        <Title order={4} mb="md">
+          Course Schedule
+        </Title>
         <Table mb="sm">
           <Table.Thead>
             <Table.Tr>
@@ -182,23 +197,23 @@ export function AddCourse() {
                 <Table.Td>
                   <TimeInput
                     value={item.start_time}
-                    onChange={(event) => updateScheduleItem(index, 'start_time', event.currentTarget.value)}
+                    onChange={(event) =>
+                      updateScheduleItem(index, 'start_time', event.currentTarget.value)
+                    }
                     required
                   />
                 </Table.Td>
                 <Table.Td>
                   <TimeInput
                     value={item.end_time}
-                    onChange={(event) => updateScheduleItem(index, 'end_time', event.currentTarget.value)}
+                    onChange={(event) =>
+                      updateScheduleItem(index, 'end_time', event.currentTarget.value)
+                    }
                     required
                   />
                 </Table.Td>
                 <Table.Td>
-                  <ActionIcon
-                    variant="light"
-                    color="red"
-                    onClick={() => removeScheduleItem(index)}
-                  >
+                  <ActionIcon variant="light" color="red" onClick={() => removeScheduleItem(index)}>
                     <IconTrash size={16} />
                   </ActionIcon>
                 </Table.Td>
@@ -227,4 +242,4 @@ export function AddCourse() {
       </form>
     </Container>
   );
-} 
+}

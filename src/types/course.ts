@@ -17,4 +17,3 @@ export interface Course {
   created_at?: string;
   updated_at?: string;
 }
-

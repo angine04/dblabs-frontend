@@ -1,11 +1,23 @@
 import React, { useEffect, useState } from 'react';
+import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Container, Title, Button, Group, TextInput, Select, Textarea, NumberInput, LoadingOverlay, Table, ActionIcon } from '@mantine/core';
+import {
+  ActionIcon,
+  Button,
+  Container,
+  Group,
+  LoadingOverlay,
+  NumberInput,
+  Select,
+  Table,
+  Textarea,
+  TextInput,
+  Title,
+} from '@mantine/core';
 import { TimeInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { useCourses } from '../../hooks/useCourses';
-import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { Course } from '../../types/course';
 
 type CourseFormValues = Omit<Course, 'id' | 'enrolled_count' | 'created_at' | 'updated_at'>;
@@ -13,13 +25,13 @@ type CourseFormValues = Omit<Course, 'id' | 'enrolled_count' | 'created_at' | 'u
 export function EditCourse() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { 
+  const {
     updateCourse,
-    courses: { data: courses, isLoading }
+    courses: { data: courses, isLoading },
   } = useCourses();
   const [schedule, setSchedule] = useState<Course['schedule']>([]);
 
-  const course = courses?.find(c => String(c.id) === id);
+  const course = courses?.find((c) => String(c.id) === id);
 
   const form = useForm<CourseFormValues>({
     initialValues: {
@@ -66,7 +78,7 @@ export function EditCourse() {
     if (!id) {
       return;
     }
-    
+
     try {
       await updateCourse.mutateAsync({
         id,
@@ -107,7 +119,9 @@ export function EditCourse() {
   if (!course && !isLoading) {
     return (
       <Container size="md">
-        <Title order={2} mb="xl">Course Not Found</Title>
+        <Title order={2} mb="xl">
+          Course Not Found
+        </Title>
         <Button onClick={() => navigate('/courses')}>Back to Courses</Button>
       </Container>
     );
@@ -116,8 +130,10 @@ export function EditCourse() {
   return (
     <Container size="md" pos="relative">
       <LoadingOverlay visible={isLoading} />
-      
-      <Title order={2} mb="xl">Edit Course</Title>
+
+      <Title order={2} mb="xl">
+        Edit Course
+      </Title>
 
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Group grow mb="md">
@@ -194,7 +210,9 @@ export function EditCourse() {
           mb="md"
         />
 
-        <Title order={4} mb="md">Course Schedule</Title>
+        <Title order={4} mb="md">
+          Course Schedule
+        </Title>
         <Table mb="sm">
           <Table.Thead>
             <Table.Tr>
@@ -224,23 +242,23 @@ export function EditCourse() {
                 <Table.Td>
                   <TimeInput
                     value={item.start_time}
-                    onChange={(event) => updateScheduleItem(index, 'start_time', event.currentTarget.value)}
+                    onChange={(event) =>
+                      updateScheduleItem(index, 'start_time', event.currentTarget.value)
+                    }
                     required
                   />
                 </Table.Td>
                 <Table.Td>
                   <TimeInput
                     value={item.end_time}
-                    onChange={(event) => updateScheduleItem(index, 'end_time', event.currentTarget.value)}
+                    onChange={(event) =>
+                      updateScheduleItem(index, 'end_time', event.currentTarget.value)
+                    }
                     required
                   />
                 </Table.Td>
                 <Table.Td>
-                  <ActionIcon
-                    variant="light"
-                    color="red"
-                    onClick={() => removeScheduleItem(index)}
-                  >
+                  <ActionIcon variant="light" color="red" onClick={() => removeScheduleItem(index)}>
                     <IconTrash size={16} />
                   </ActionIcon>
                 </Table.Td>
@@ -269,4 +287,4 @@ export function EditCourse() {
       </form>
     </Container>
   );
-} 
+}

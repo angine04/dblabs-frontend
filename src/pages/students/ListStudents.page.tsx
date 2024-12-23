@@ -1,11 +1,45 @@
 import React, { useState } from 'react';
+import {
+  IconChevronDown,
+  IconChevronUp,
+  IconDownload,
+  IconEdit,
+  IconFileExport,
+  IconPlus,
+  IconSearch,
+  IconSelector,
+  IconTrash,
+} from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import { Container, Title, Button, Group, Table, Badge, ActionIcon, TextInput, Select, LoadingOverlay, Modal, MantineTheme, Menu, Checkbox, Text, Pagination } from '@mantine/core';
-import { IconPlus, IconEdit, IconTrash, IconSearch, IconChevronUp, IconChevronDown, IconSelector, IconDownload, IconFileExport } from '@tabler/icons-react';
-import { useStudents } from '../../hooks/useStudents';
+import {
+  ActionIcon,
+  Badge,
+  Button,
+  Checkbox,
+  Container,
+  Group,
+  LoadingOverlay,
+  MantineTheme,
+  Menu,
+  Modal,
+  Pagination,
+  Select,
+  Table,
+  Text,
+  TextInput,
+  Title,
+} from '@mantine/core';
 import { notifications } from '@mantine/notifications';
+import { useStudents } from '../../hooks/useStudents';
 
-type SortField = 'student_id' | 'name' | 'email' | 'date_of_birth' | 'enrollment_date' | 'program' | 'status';
+type SortField =
+  | 'student_id'
+  | 'name'
+  | 'email'
+  | 'date_of_birth'
+  | 'enrollment_date'
+  | 'program'
+  | 'status';
 type SortDirection = 'asc' | 'desc';
 
 export function ListStudents() {
@@ -20,10 +54,10 @@ export function ListStudents() {
   const [bulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-  
-  const { 
+
+  const {
     students: { data: students, isLoading },
-    deleteStudent
+    deleteStudent,
   } = useStudents();
 
   const handleSort = (field: SortField) => {
@@ -39,9 +73,11 @@ export function ListStudents() {
     if (field !== sortField) {
       return <IconSelector size={16} stroke={1.5} style={{ opacity: 0.5 }} />;
     }
-    return sortDirection === 'asc' 
-      ? <IconChevronUp size={16} stroke={1.5} /> 
-      : <IconChevronDown size={16} stroke={1.5} />;
+    return sortDirection === 'asc' ? (
+      <IconChevronUp size={16} stroke={1.5} />
+    ) : (
+      <IconChevronDown size={16} stroke={1.5} />
+    );
   };
 
   const handleDelete = async (id: number) => {
@@ -62,16 +98,16 @@ export function ListStudents() {
     }
   };
 
-  const filteredStudents = students?.filter(student => {
-    const matchesSearch = 
+  const filteredStudents = students?.filter((student) => {
+    const matchesSearch =
       student.student_id.toLowerCase().includes(search.toLowerCase()) ||
       student.first_name.toLowerCase().includes(search.toLowerCase()) ||
       student.last_name.toLowerCase().includes(search.toLowerCase()) ||
       student.email.toLowerCase().includes(search.toLowerCase()) ||
       student.program.toLowerCase().includes(search.toLowerCase());
-    
+
     const matchesStatus = !statusFilter || student.status === statusFilter;
-    
+
     return matchesSearch && matchesStatus;
   });
 
@@ -82,11 +118,11 @@ export function ListStudents() {
     if (bVal === null || bVal === undefined) {
       return -1;
     }
-    
+
     if (typeof aVal === 'string' && typeof bVal === 'string') {
       return aVal.localeCompare(bVal);
     }
-    
+
     if (aVal < bVal) {
       return -1;
     }
@@ -110,12 +146,8 @@ export function ListStudents() {
         bValue = b[sortField] ? new Date(b[sortField]).getTime() : null;
         break;
       default:
-        aValue = typeof a[sortField] === 'string' 
-          ? a[sortField].toLowerCase() 
-          : a[sortField];
-        bValue = typeof b[sortField] === 'string' 
-          ? b[sortField].toLowerCase() 
-          : b[sortField];
+        aValue = typeof a[sortField] === 'string' ? a[sortField].toLowerCase() : a[sortField];
+        bValue = typeof b[sortField] === 'string' ? b[sortField].toLowerCase() : b[sortField];
     }
 
     const compareResult = compareValues(aValue, bValue);
@@ -145,7 +177,7 @@ export function ListStudents() {
 
   const handleBulkDelete = async () => {
     try {
-      await Promise.all(selectedStudents.map(id => deleteStudent.mutateAsync(id.toString())));
+      await Promise.all(selectedStudents.map((id) => deleteStudent.mutateAsync(id.toString())));
       notifications.show({
         title: 'Success',
         message: 'Students deleted successfully',
@@ -166,21 +198,30 @@ export function ListStudents() {
     if (selectedStudents.length === paginatedStudents.length && paginatedStudents.length > 0) {
       setSelectedStudents([]);
     } else {
-      setSelectedStudents(paginatedStudents.map(student => student.id));
+      setSelectedStudents(paginatedStudents.map((student) => student.id));
     }
   };
 
   const handleSelectStudent = (id: number) => {
     if (selectedStudents.includes(id)) {
-      setSelectedStudents(selectedStudents.filter(studentId => studentId !== id));
+      setSelectedStudents(selectedStudents.filter((studentId) => studentId !== id));
     } else {
       setSelectedStudents([...selectedStudents, id]);
     }
   };
 
   const exportToCSV = () => {
-    const headers = ['Student ID', 'First Name', 'Last Name', 'Email', 'Program', 'Status', 'Date of Birth', 'Enrollment Date'];
-    const data = sortedStudents.map(student => [
+    const headers = [
+      'Student ID',
+      'First Name',
+      'Last Name',
+      'Email',
+      'Program',
+      'Status',
+      'Date of Birth',
+      'Enrollment Date',
+    ];
+    const data = sortedStudents.map((student) => [
       student.student_id,
       student.first_name,
       student.last_name,
@@ -188,12 +229,12 @@ export function ListStudents() {
       student.program,
       student.status,
       student.date_of_birth,
-      student.enrollment_date
+      student.enrollment_date,
     ]);
 
     const csvContent = [
       headers.join(','),
-      ...data.map(row => row.map(cell => `"${cell || ''}"`).join(','))
+      ...data.map((row) => row.map((cell) => `"${cell || ''}"`).join(',')),
     ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -216,7 +257,7 @@ export function ListStudents() {
   return (
     <Container size="lg" pos="relative">
       <LoadingOverlay visible={isLoading} />
-      
+
       <Group justify="space-between" mb="md">
         <Title order={2}>Students</Title>
         <Group>
@@ -225,11 +266,7 @@ export function ListStudents() {
               <Text size="sm" c="dimmed">
                 {selectedStudents.length} selected
               </Text>
-              <Button
-                variant="light"
-                color="red"
-                onClick={() => setBulkDeleteModalOpen(true)}
-              >
+              <Button variant="light" color="red" onClick={() => setBulkDeleteModalOpen(true)}>
                 Delete Selected
               </Button>
             </>
@@ -241,19 +278,13 @@ export function ListStudents() {
                 </Button>
               </Menu.Target>
               <Menu.Dropdown>
-                <Menu.Item
-                  leftSection={<IconFileExport size={14} />}
-                  onClick={exportToCSV}
-                >
+                <Menu.Item leftSection={<IconFileExport size={14} />} onClick={exportToCSV}>
                   Export to CSV
                 </Menu.Item>
               </Menu.Dropdown>
             </Menu>
           )}
-          <Button
-            leftSection={<IconPlus size={20} />}
-            onClick={() => navigate('/students/add')}
-          >
+          <Button leftSection={<IconPlus size={20} />} onClick={() => navigate('/students/add')}>
             Add Student
           </Button>
         </Group>
@@ -286,12 +317,20 @@ export function ListStudents() {
           <Table.Tr>
             <Table.Th w={40}>
               <Checkbox
-                checked={selectedStudents.length === paginatedStudents.length && paginatedStudents.length > 0}
-                indeterminate={selectedStudents.length > 0 && selectedStudents.length < sortedStudents.length}
+                checked={
+                  selectedStudents.length === paginatedStudents.length &&
+                  paginatedStudents.length > 0
+                }
+                indeterminate={
+                  selectedStudents.length > 0 && selectedStudents.length < sortedStudents.length
+                }
                 onChange={handleSelectAll}
               />
             </Table.Th>
-            <Table.Th onClick={() => handleSort('student_id')} style={getSortableHeaderStyle('student_id')}>
+            <Table.Th
+              onClick={() => handleSort('student_id')}
+              style={getSortableHeaderStyle('student_id')}
+            >
               <Group gap="xs" wrap="nowrap">
                 Student ID {getSortIcon('student_id')}
               </Group>
@@ -306,12 +345,18 @@ export function ListStudents() {
                 Email {getSortIcon('email')}
               </Group>
             </Table.Th>
-            <Table.Th onClick={() => handleSort('date_of_birth')} style={getSortableHeaderStyle('date_of_birth')}>
+            <Table.Th
+              onClick={() => handleSort('date_of_birth')}
+              style={getSortableHeaderStyle('date_of_birth')}
+            >
               <Group gap="xs" wrap="nowrap">
                 Date of Birth {getSortIcon('date_of_birth')}
               </Group>
             </Table.Th>
-            <Table.Th onClick={() => handleSort('program')} style={getSortableHeaderStyle('program')}>
+            <Table.Th
+              onClick={() => handleSort('program')}
+              style={getSortableHeaderStyle('program')}
+            >
               <Group gap="xs" wrap="nowrap">
                 Program {getSortIcon('program')}
               </Group>
@@ -334,14 +379,14 @@ export function ListStudents() {
                 />
               </Table.Td>
               <Table.Td>{student.student_id}</Table.Td>
-              <Table.Td>{student.first_name} {student.last_name}</Table.Td>
+              <Table.Td>
+                {student.first_name} {student.last_name}
+              </Table.Td>
               <Table.Td>{student.email}</Table.Td>
               <Table.Td>{student.date_of_birth}</Table.Td>
               <Table.Td>{student.program}</Table.Td>
               <Table.Td>
-                <Badge color={getStatusColor(student.status)}>
-                  {student.status}
-                </Badge>
+                <Badge color={getStatusColor(student.status)}>{student.status}</Badge>
               </Table.Td>
               <Table.Td>
                 <Group gap="xs">
@@ -372,12 +417,7 @@ export function ListStudents() {
 
       {totalPages > 1 && (
         <Group justify="center" mt="xl">
-          <Pagination
-            value={currentPage}
-            onChange={setCurrentPage}
-            total={totalPages}
-            size="sm"
-          />
+          <Pagination value={currentPage} onChange={setCurrentPage} total={totalPages} size="sm" />
         </Group>
       )}
 
@@ -389,9 +429,11 @@ export function ListStudents() {
       >
         <p>Are you sure you want to delete this student?</p>
         <Group justify="flex-end" mt="md">
-          <Button variant="light" onClick={() => setDeleteModalOpen(false)}>Cancel</Button>
-          <Button 
-            color="red" 
+          <Button variant="light" onClick={() => setDeleteModalOpen(false)}>
+            Cancel
+          </Button>
+          <Button
+            color="red"
             onClick={() => studentToDelete && handleDelete(studentToDelete)}
             loading={deleteStudent.isPending}
           >
@@ -411,15 +453,11 @@ export function ListStudents() {
           <Button variant="light" onClick={() => setBulkDeleteModalOpen(false)}>
             Cancel
           </Button>
-          <Button 
-            color="red" 
-            onClick={handleBulkDelete}
-            loading={deleteStudent.isPending}
-          >
+          <Button color="red" onClick={handleBulkDelete} loading={deleteStudent.isPending}>
             Delete All
           </Button>
         </Group>
       </Modal>
     </Container>
   );
-} 
+}

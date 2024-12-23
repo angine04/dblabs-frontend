@@ -1,8 +1,10 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Container, Title, Button, Group, TextInput, Select, LoadingOverlay } from '@mantine/core';
+import { Button, Container, Group, LoadingOverlay, Select, TextInput, Title } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
-import '@mantine/dates/styles.css'
+
+import '@mantine/dates/styles.css';
+
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { useStudents } from '../../hooks/useStudents';
@@ -22,12 +24,12 @@ interface StudentFormValues {
 export function EditStudent() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { 
+  const {
     updateStudent,
-    students: { data: students, isLoading }
+    students: { data: students, isLoading },
   } = useStudents();
 
-  const student = students?.find(s => s.id === Number(id));
+  const student = students?.find((s) => s.id === Number(id));
 
   const form = useForm<StudentFormValues>({
     initialValues: {
@@ -65,7 +67,7 @@ export function EditStudent() {
     if (!id) {
       return;
     }
-    
+
     try {
       await updateStudent.mutateAsync({
         id,
@@ -78,8 +80,8 @@ export function EditStudent() {
           enrollment_date: values.enrollment_date?.toISOString().split('T')[0],
           program: values.program,
           status: values.status,
-          contact_number: values.contact_number
-        }
+          contact_number: values.contact_number,
+        },
       });
       notifications.show({
         title: 'Success',
@@ -99,7 +101,9 @@ export function EditStudent() {
   if (!student && !isLoading) {
     return (
       <Container size="md">
-        <Title order={2} mb="xl">Student Not Found</Title>
+        <Title order={2} mb="xl">
+          Student Not Found
+        </Title>
         <Button onClick={() => navigate('/students')}>Back to Students</Button>
       </Container>
     );
@@ -108,8 +112,10 @@ export function EditStudent() {
   return (
     <Container size="md" pos="relative">
       <LoadingOverlay visible={isLoading} />
-      
-      <Title order={2} mb="xl">Edit Student</Title>
+
+      <Title order={2} mb="xl">
+        Edit Student
+      </Title>
 
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <TextInput
@@ -153,11 +159,11 @@ export function EditStudent() {
             {...form.getInputProps('date_of_birth')}
             styles={{
               input: {
-                fontSize: '14px'
+                fontSize: '14px',
               },
               calendarHeader: {
-                marginBottom: '10px'
-              }
+                marginBottom: '10px',
+              },
             }}
           />
           <DateInput
@@ -168,11 +174,11 @@ export function EditStudent() {
             {...form.getInputProps('enrollment_date')}
             styles={{
               input: {
-                fontSize: '14px'
+                fontSize: '14px',
               },
               calendarHeader: {
-                marginBottom: '10px'
-              }
+                marginBottom: '10px',
+              },
             }}
           />
         </Group>

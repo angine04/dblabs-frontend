@@ -1,20 +1,20 @@
 import axios from 'axios';
-import { Student } from '../types/student';
 import { Course } from '../types/course';
 import { Grade } from '../types/grade';
+import { Student } from '../types/student';
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   headers: {
     'Content-Type': 'application/json',
-  }
+  },
 });
 
 // Add response interceptor for debugging
 api.interceptors.response.use(
-  response => response,
-  error => {
-    console.error('API Error:', error.response || error);
+  (response) => response,
+  (error) => {
+    // console.error('API Error:', error.response || error);
     return Promise.reject(error);
   }
 );
@@ -43,8 +43,7 @@ export const studentApi = {
   delete: async (id: string) => {
     await api.delete(`/students/${id}`);
   },
-}; 
-
+};
 
 export const courseApi = {
   getAll: async () => {
@@ -70,7 +69,7 @@ export const courseApi = {
   delete: async (id: string) => {
     await api.delete(`/courses/${id}`);
   },
-}; 
+};
 
 export const gradeApi = {
   getByCourse: async (courseId: string) => {
@@ -91,5 +90,5 @@ export const gradeApi = {
   create: async (gradeData: Omit<Grade, 'id'>) => {
     const { data } = await api.post<Grade>('/grades/', gradeData);
     return data;
-  }
-}; 
+  },
+};

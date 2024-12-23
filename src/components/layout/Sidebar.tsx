@@ -1,11 +1,7 @@
-import { AppShell, Stack, UnstyledButton, Group, Text, ThemeIcon } from '@mantine/core';
-import { 
-  IconDashboard, 
-  IconUsers, 
-  IconBook2, 
-  IconChartBar,
-} from '@tabler/icons-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { IconBook2, IconChartBar, IconDashboard, IconUsers } from '@tabler/icons-react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { AppShell, Group, Stack, Text, ThemeIcon, UnstyledButton, Transition } from '@mantine/core';
+import { useEffect, useState } from 'react';
 
 interface NavItemProps {
   icon: React.ReactNode;
@@ -13,37 +9,82 @@ interface NavItemProps {
   path: string;
   active?: boolean;
   onClick: () => void;
+  index: number;
 }
 
-function NavItem({ icon, label, active, onClick }: NavItemProps) {
+function NavItem({ icon, label, active, onClick, index }: NavItemProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setMounted(true), 50 * (index + 1));
+    return () => clearTimeout(timer);
+  }, [index]);
+
   return (
-    <UnstyledButton
-      onClick={onClick}
-      style={(theme) => ({
-        display: 'block',
-        width: '100%',
-        padding: theme.spacing.xs,
-        borderRadius: theme.radius.sm,
-        color: theme.colors.dark[0],
-        backgroundColor: active ? theme.colors.blue[1] : 'transparent',
-        '&:hover': {
-          backgroundColor: theme.colors.blue[1],
-        },
-      })}
+    <Transition
+      mounted={mounted}
+      transition={{
+        in: { opacity: 1, transform: 'translateX(0)' },
+        out: { opacity: 0, transform: 'translateX(-20px)' },
+        transitionProperty: 'transform, opacity, background-color',
+        common: { transition: 'all 0.3s ease' },
+      }}
+      duration={300}
     >
-      <Group>
-        <ThemeIcon variant={active ? 'filled' : 'light'} size="lg">
-          {icon}
-        </ThemeIcon>
-        <Text size="sm" c="black">{label}</Text>
-      </Group>
-    </UnstyledButton>
+      {(styles) => (
+        <UnstyledButton
+          onClick={onClick}
+          style={(theme) => ({
+            ...styles,
+            display: 'block',
+            width: '100%',
+            padding: theme.spacing.xs,
+            borderRadius: theme.radius.sm,
+            color: theme.colors.dark[0],
+            backgroundColor: active ? theme.colors.blue[1] : 'transparent',
+            transition: 'all 0.3s ease',
+            '&:hover': {
+              backgroundColor: theme.colors.blue[1],
+              transform: 'translateX(5px)',
+            },
+          })}
+        >
+          <Group>
+            <ThemeIcon 
+              variant={active ? 'filled' : 'light'} 
+              size="lg"
+              style={{
+                transition: 'all 0.3s ease',
+              }}
+            >
+              {icon}
+            </ThemeIcon>
+            <Text 
+              size="sm" 
+              c="black"
+              style={{
+                transition: 'all 0.3s ease',
+                transform: active ? 'translateX(3px)' : 'none',
+              }}
+            >
+              {label}
+            </Text>
+          </Group>
+        </UnstyledButton>
+      )}
+    </Transition>
   );
 }
 
 export function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsVisible(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   const navigation = [
     { path: '/dashboard', label: 'Dashboard', icon: <IconDashboard size={18} /> },
@@ -54,16 +95,31 @@ export function Sidebar() {
 
   return (
     <AppShell.Navbar p="md">
-      <Stack gap="md">
-        {navigation.map((item) => (
-          <NavItem
-            key={item.path}
-            {...item}
-            active={location.pathname === item.path || location.pathname.startsWith(`${item.path}/`)}
-            onClick={() => navigate(item.path)}
-          />
-        ))}
-      </Stack>
+      <Transition
+        mounted={isVisible}
+        transition={{
+          in: { opacity: 1, transform: 'translateX(0)' },
+          out: { opacity: 0, transform: 'translateX(-20px)' },
+          transitionProperty: 'transform, opacity',
+        }}
+        duration={400}
+      >
+        {(styles) => (
+          <Stack gap="md" style={styles}>
+            {navigation.map((item, index) => (
+              <NavItem
+                key={item.path}
+                {...item}
+                index={index}
+                active={
+                  location.pathname === item.path || location.pathname.startsWith(`${item.path}/`)
+                }
+                onClick={() => navigate(item.path)}
+              />
+            ))}
+          </Stack>
+        )}
+      </Transition>
     </AppShell.Navbar>
   );
-} 
+}

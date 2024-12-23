@@ -1,12 +1,26 @@
-import React, { useState } from 'react';
-import { Container, Grid, Card, Text, Group, Button, Table, ActionIcon, Select, Badge, Center, Stack, ThemeIcon } from '@mantine/core';
-import { IconDownload, IconFilter, IconEdit, IconPlus, IconSchool } from '@tabler/icons-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { IconEdit, IconPlus, IconSchool } from '@tabler/icons-react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  ActionIcon,
+  Badge,
+  Button,
+  Card,
+  Center,
+  Container,
+  Grid,
+  Group,
+  Select,
+  Stack,
+  Table,
+  Text,
+  ThemeIcon,
+} from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { gradeApi } from '../../services/api';
-import { useCourses } from '../../hooks/useCourses';
-import { Grade } from '../../types/grade';
 import { GradeEditModal } from '../../components/grades/GradeEditModal';
+import { useCourses } from '../../hooks/useCourses';
+import { gradeApi } from '../../services/api';
+import { Grade } from '../../types/grade';
 
 interface GradeFormValues {
   score: number;
@@ -20,38 +34,54 @@ export function GradeManagement() {
   const [selectedStudent, setSelectedStudent] = useState<Grade | null>(null);
   const queryClient = useQueryClient();
 
-  const { courses: { data: courses = [] } } = useCourses();
+  const {
+    courses: { data: courses = [] },
+  } = useCourses();
 
-  // Get unique semesters from courses and sort them
-  const availableSemesters = React.useMemo(() => {
-    const semesters = new Set(courses.map(course => course.semester));
-    return Array.from(semesters)
-      .sort()
+  // Get available semesters for the current course
+  const availableSemesters = useMemo(() => {
+    if (!selectedCourse) {return [];}
+
+    const currentCourse = courses.find(c => c.id.toString() === selectedCourse);
+    if (!currentCourse) {return [];}
+
+    // Get all courses with the same code
+    const relatedCourses = courses.filter(c => c.code === currentCourse.code);
+    
+    // Get unique semesters from related courses
+    const semesters = [...new Set(relatedCourses.map(c => c.semester))];
+    
+    return semesters
+      .sort((a, b) => b.localeCompare(a)) // Sort in descending order
       .map(semester => ({
         value: semester,
-        label: semester
+        label: semester,
       }));
-  }, [courses]);
+  }, [selectedCourse, courses]);
+
+  // Reset semester selection when course changes
+  useEffect(() => {
+    setSelectedSemester(null);
+  }, [selectedCourse]);
 
   // Sort courses by code
   const sortedCourses = React.useMemo(() => {
     return [...courses]
       .sort((a, b) => a.code.localeCompare(b.code))
-      .map(course => ({
+      .map((course) => ({
         value: course.id.toString(),
-        label: `${course.code} - ${course.name}`
+        label: `${course.code} - ${course.name}`,
       }));
   }, [courses]);
 
   const { data: grades = [], isLoading } = useQuery({
     queryKey: ['grades', 'course', selectedCourse],
-    queryFn: () => selectedCourse ? gradeApi.getByCourse(selectedCourse) : Promise.resolve([]),
-    enabled: !!selectedCourse
+    queryFn: () => (selectedCourse ? gradeApi.getByCourse(selectedCourse) : Promise.resolve([])),
+    enabled: !!selectedCourse,
   });
 
   const updateGradeMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<Grade> }) =>
-      gradeApi.update(id, data),
+    mutationFn: ({ id, data }: { id: string; data: Partial<Grade> }) => gradeApi.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['grades', 'course', selectedCourse] });
       setEditModalOpen(false);
@@ -67,7 +97,7 @@ export function GradeManagement() {
         message: 'Failed to update grades',
         color: 'red',
       });
-    }
+    },
   });
 
   const createGradeMutation = useMutation({
@@ -86,7 +116,7 @@ export function GradeManagement() {
         message: 'Failed to add grade',
         color: 'red',
       });
-    }
+    },
   });
 
   const handleGradeSubmit = async (values: GradeFormValues) => {
@@ -98,8 +128,8 @@ export function GradeManagement() {
       id: selectedStudent.id,
       data: {
         score: values.score,
-        comments: values.comments
-      }
+        comments: values.comments,
+      },
     });
   };
 
@@ -108,7 +138,7 @@ export function GradeManagement() {
       return;
     }
 
-    const selectedCourseObj = courses.find(c => c.id.toString() === selectedCourse);
+    const selectedCourseObj = courses.find((c) => c.id.toString() === selectedCourse);
     if (!selectedCourseObj) {
       return;
     }
@@ -119,7 +149,7 @@ export function GradeManagement() {
       score: values.score,
       comments: values.comments,
       submission_date: new Date().toISOString(),
-      semester: selectedCourseObj.semester
+      semester: selectedCourseObj.semester,
     });
     setEditModalOpen(false);
     setSelectedStudent(null);
@@ -146,39 +176,34 @@ export function GradeManagement() {
 
   const getGradeColor = (grade: string): string => {
     switch (grade) {
-      case 'A': return 'green';
-      case 'B': return 'blue';
-      case 'C': return 'yellow';
-      case 'D': return 'orange';
-      case 'F': return 'red';
-      case '-': return 'gray';
-      default: return 'gray';
+      case 'A':
+        return 'green';
+      case 'B':
+        return 'blue';
+      case 'C':
+        return 'yellow';
+      case 'D':
+        return 'orange';
+      case 'F':
+        return 'red';
+      case '-':
+        return 'gray';
+      default:
+        return 'gray';
     }
   };
 
   const filteredGrades = selectedSemester
-    ? grades.filter(grade => grade.semester === selectedSemester)
+    ? grades.filter((grade) => grade.semester === selectedSemester)
     : grades;
 
   return (
     <Container size="lg">
       <Group justify="space-between" mb="md">
-        <Text size="xl" fw={700}>Grade Management</Text>
-        <Group>
-          <Button
-            variant="light"
-            leftSection={<IconDownload size={20} />}
-          >
-            Export Grades
-          </Button>
-          <Button
-            leftSection={<IconFilter size={20} />}
-          >
-            Advanced Filters
-          </Button>
-        </Group>
+        <Text size="xl" fw={700}>
+          Grade Management
+        </Text>
       </Group>
-
       <Grid>
         <Grid.Col span={12}>
           <Card withBorder p="md">
@@ -261,7 +286,9 @@ export function GradeManagement() {
                               <IconSchool size={28} />
                             </ThemeIcon>
                             <Text size="xl" fw={500}>
-                              {selectedCourse ? 'No grades available' : 'Please select a course to view grades'}
+                              {selectedCourse
+                                ? 'No grades available'
+                                : 'Please select a course to view grades'}
                             </Text>
                             {!selectedCourse && (
                               <Text c="dimmed" size="sm">
@@ -286,24 +313,30 @@ export function GradeManagement() {
           setEditModalOpen(false);
           setSelectedStudent(null);
         }}
-        studentData={selectedStudent ? {
-          studentName: `${selectedStudent.student?.first_name} ${selectedStudent.student?.last_name}`,
-          grades: selectedStudent
-        } : {
-          studentName: 'New Grade',
-          grades: {
-            id: '',
-            score: 0,
-            comments: '',
-            student_id: 0,
-            course_id: 0,
-            submission_date: new Date().toISOString(),
-            semester: selectedCourse ? courses.find(c => c.id.toString() === selectedCourse)?.semester || '' : ''
-          }
-        }}
+        studentData={
+          selectedStudent
+            ? {
+                studentName: `${selectedStudent.student?.first_name} ${selectedStudent.student?.last_name}`,
+                grades: selectedStudent,
+              }
+            : {
+                studentName: 'New Grade',
+                grades: {
+                  id: '',
+                  score: 0,
+                  comments: '',
+                  student_id: 0,
+                  course_id: 0,
+                  submission_date: new Date().toISOString(),
+                  semester: selectedCourse
+                    ? courses.find((c) => c.id.toString() === selectedCourse)?.semester || ''
+                    : '',
+                },
+              }
+        }
         onSubmit={selectedStudent ? handleGradeSubmit : handleAddGrade}
         isNew={!selectedStudent}
       />
     </Container>
   );
-} 
+}

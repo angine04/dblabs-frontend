@@ -1,7 +1,18 @@
 import React from 'react';
-import { Container, Grid, Card, Text, Group, LoadingOverlay } from '@mantine/core';
-import { IconUsers, IconSchool, IconBooks, IconChartBar } from '@tabler/icons-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { IconBooks, IconChartBar, IconSchool, IconUsers } from '@tabler/icons-react';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
+import { Card, Container, Grid, Group, LoadingOverlay, Text } from '@mantine/core';
 import { useStats } from '../../hooks/useStats';
 
 const COLORS = ['#1c7ed6', '#37b24d', '#f03e3e', '#7950f2'];
@@ -67,7 +78,9 @@ export function Dashboard() {
 
         <Grid.Col span={{ base: 12, md: 6 }}>
           <Card withBorder p="md" h={400}>
-            <Text fw={500} mb="md">Program Distribution</Text>
+            <Text fw={500} mb="md">
+              Program Distribution
+            </Text>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -91,11 +104,13 @@ export function Dashboard() {
 
         <Grid.Col span={{ base: 12, md: 6 }}>
           <Card withBorder p="md" h={400}>
-            <Text fw={500} mb="md">GPA Distribution</Text>
+            <Text fw={500} mb="md">
+              GPA Distribution
+            </Text>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={stats?.gpa_distribution} margin={{ left: 10, right: 10 }}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis 
+                <XAxis
                   dataKey="range"
                   label={{ value: 'GPA Range', position: 'bottom' }}
                   angle={-45}
@@ -104,9 +119,7 @@ export function Dashboard() {
                   interval={0}
                   tick={{ fontSize: 12 }}
                 />
-                <YAxis 
-                  label={{ value: 'Number of Students', angle: -90, position: 'left' }}
-                />
+                <YAxis label={{ value: 'Number of Students', angle: -90, position: 'left' }} />
                 <Tooltip />
                 <Bar dataKey="count" fill="#1c7ed6" />
               </BarChart>
@@ -116,4 +129,4 @@ export function Dashboard() {
       </Grid>
     </Container>
   );
-} 
+}

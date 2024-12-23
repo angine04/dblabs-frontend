@@ -1,3 +1,4 @@
+/* eslint-disable curly */
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../services/api';
 
@@ -68,7 +69,7 @@ export function useStats() {
 
       // Create a map of course IDs to credits
       const courseCredits = new Map(
-        (courses.data as Course[]).map(course => [course.id, course.credits])
+        (courses.data as Course[]).map((course) => [course.id, course.credits])
       );
 
       // Calculate total students
@@ -87,14 +88,14 @@ export function useStats() {
 
       // Calculate GPA distribution per student
       const studentGrades = new Map();
-      (grades.data as Grade[]).forEach(grade => {
+      (grades.data as Grade[]).forEach((grade) => {
         if (grade.score == null || !courseCredits.has(grade.course_id) || !grade.student) return;
 
         const studentId = grade.student.student_id;
         if (!studentGrades.has(studentId)) {
           studentGrades.set(studentId, {
             totalWeightedGPA: 0,
-            totalCredits: 0
+            totalCredits: 0,
           });
         }
 
@@ -126,7 +127,7 @@ export function useStats() {
         '0.6-0.7': 0,
         '0.4-0.5': 0,
         '0.2-0.3': 0,
-        '0.0-0.1': 0
+        '0.0-0.1': 0,
       } as Record<string, number>;
 
       let totalGPA = 0;
@@ -142,7 +143,7 @@ export function useStats() {
 
       const gpaDistribution = Object.entries(gpaRanges).map(([range, count]) => ({
         range,
-        count
+        count,
       }));
 
       // Calculate average GPA
@@ -159,6 +160,6 @@ export function useStats() {
         })),
         gpa_distribution: gpaDistribution,
       };
-    }
+    },
   });
-} 
+}

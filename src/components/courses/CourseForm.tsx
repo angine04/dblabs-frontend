@@ -1,7 +1,17 @@
-import { useForm } from '@mantine/form';
-import { TextInput, NumberInput, Textarea, Button, Group, Box, Select, Stack, ActionIcon } from '@mantine/core';
-import { TimeInput } from '@mantine/dates';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
+import {
+  ActionIcon,
+  Box,
+  Button,
+  Group,
+  NumberInput,
+  Select,
+  Stack,
+  Textarea,
+  TextInput,
+} from '@mantine/core';
+import { TimeInput } from '@mantine/dates';
+import { useForm } from '@mantine/form';
 import { Course } from '../../types/course';
 
 interface CourseFormProps {
@@ -21,7 +31,7 @@ export function CourseForm({ initialValues, onSubmit, isLoading }: CourseFormPro
       semester: '',
       capacity: 30,
       status: 'active' as const,
-      schedule: [{ day: '', start_time: '', end_time: '' }]
+      schedule: [{ day: '', start_time: '', end_time: '' }],
     },
     validate: {
       code: (value) => (!value ? 'Course code is required' : null),
@@ -39,7 +49,7 @@ export function CourseForm({ initialValues, onSubmit, isLoading }: CourseFormPro
   const handleSubmit = form.onSubmit((values) => {
     onSubmit({
       ...values,
-      status: values.status as 'active' | 'inactive' | 'completed'
+      status: values.status as 'active' | 'inactive' | 'completed',
     });
   });
 
@@ -91,12 +101,7 @@ export function CourseForm({ initialValues, onSubmit, isLoading }: CourseFormPro
             {...form.getInputProps('semester')}
             required
           />
-          <NumberInput
-            label="Capacity"
-            {...form.getInputProps('capacity')}
-            min={1}
-            required
-          />
+          <NumberInput label="Capacity" {...form.getInputProps('capacity')} min={1} required />
         </Group>
 
         <Select
@@ -112,7 +117,9 @@ export function CourseForm({ initialValues, onSubmit, isLoading }: CourseFormPro
 
         <Stack gap="xs">
           <Group justify="space-between">
-            <Box component="label" fw={500} fz="sm">Schedule</Box>
+            <Box component="label" fw={500} fz="sm">
+              Schedule
+            </Box>
             <Button
               size="xs"
               leftSection={<IconPlus size={16} />}
@@ -173,4 +180,4 @@ export function CourseForm({ initialValues, onSubmit, isLoading }: CourseFormPro
       </Stack>
     </Box>
   );
-} 
+}

@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { studentApi } from '../services/api';
 import { Student } from '../types/student';
 
@@ -45,4 +45,4 @@ export function useStudent(id: string) {
     queryKey: ['students', id],
     queryFn: () => studentApi.getById(id),
   });
-} 
+}

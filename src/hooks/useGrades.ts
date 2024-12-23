@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { gradeApi } from '../services/api';
 import { Grade } from '../types/grade';
 
@@ -6,8 +6,7 @@ export function useGrades() {
   const queryClient = useQueryClient();
 
   const updateGrade = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<Grade> }) =>
-      gradeApi.update(id, data),
+    mutationFn: ({ id, data }: { id: string; data: Partial<Grade> }) => gradeApi.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['grades'] });
     },
@@ -40,4 +39,4 @@ export function useCourseGrades(courseId: string) {
     queryFn: () => gradeApi.getByCourse(courseId),
     enabled: !!courseId,
   });
-} 
+}

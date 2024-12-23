@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { courseApi } from '../services/api';
 import { Course } from '../types/course';
 
@@ -18,8 +18,7 @@ export function useCourses() {
   });
 
   const updateCourse = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<Course> }) =>
-      courseApi.update(id, data),
+    mutationFn: ({ id, data }: { id: string; data: Partial<Course> }) => courseApi.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['courses'] });
     },
@@ -43,7 +42,7 @@ export function useCourses() {
 export function useCourse(id: string | undefined) {
   return useQuery({
     queryKey: ['courses', id],
-    queryFn: () => id ? courseApi.getById(id) : null,
+    queryFn: () => (id ? courseApi.getById(id) : null),
     enabled: !!id,
   });
-} 
+}
